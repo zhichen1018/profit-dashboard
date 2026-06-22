@@ -1,0 +1,215 @@
+<!-- v2-expense-1741 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企业管理中台 - 事业部费用录入</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;background:#f0f2f5;display:flex;height:100vh;overflow:hidden}
+
+.sidebar{width:200px;min-width:200px;background:#1a2440;color:#fff;display:flex;flex-direction:column;font-size:13px}
+.sidebar-logo{padding:16px 18px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.08);font-size:14px;font-weight:600}
+.sidebar-logo svg{width:26px;height:26px}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0}
+.nav-item{display:flex;align-items:center;padding:9px 18px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .15s;gap:8px;font-size:13px;text-decoration:none}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.nav-item.active{color:#fff;font-weight:500}
+.nav-item.expanded{color:#fff}
+.nav-item.sub{padding-left:36px;font-size:12px}
+.nav-item.sub.active{background:rgba(91,141,239,.15);color:#5b8def}
+.nav-item .arrow{margin-left:auto;font-size:9px;transition:transform .2s}
+.nav-item.expanded .arrow{transform:rotate(90deg)}
+.nav-icon{width:15px;height:15px;opacity:.5;display:flex;align-items:center;justify-content:center}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:48px;min-height:48px;background:#fff;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid #e8e8e8;gap:12px;font-size:13px}
+.topbar .breadcrumb{color:#999;font-size:12px}
+.topbar .breadcrumb span{color:#333}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+
+.content{flex:1;overflow-y:auto;padding:18px 20px}
+.page-header{margin-bottom:14px}
+.page-header .bc{color:#999;font-size:12px;margin-bottom:4px}
+.page-header .bc span{color:#5b8def;cursor:pointer}
+.page-header .title-row{display:flex;align-items:center;justify-content:space-between}
+.page-header h2{font-size:18px;font-weight:600;color:#1a1a1a}
+.page-header .subtitle{font-size:12px;color:#999;margin-left:10px}
+
+.btn-primary{padding:5px 18px;background:#5b8def;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px}
+.btn-primary:hover{background:#4a7de0}
+.btn-reset{padding:5px 14px;background:#fff;color:#666;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;font-size:13px}
+.btn-reset:hover{color:#5b8def;border-color:#5b8def}
+
+.form-card{background:#fff;border-radius:8px;padding:18px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04);margin-bottom:14px}
+.form-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f5f5f5;gap:14px}
+.form-row:last-child{border-bottom:none}
+.form-row .form-label{width:120px;font-size:13px;color:#333;white-space:nowrap;flex-shrink:0}
+.form-row .form-label .required{color:#e04040;margin-right:2px}
+.form-row input[type="text"]{flex:1;max-width:180px;padding:5px 10px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px}
+.form-row input[type="text"]:focus{outline:none;border-color:#5b8def;box-shadow:0 0 0 2px rgba(91,141,239,.15)}
+.form-row .form-remark{flex:1;max-width:280px}
+.form-row .info-icon{width:16px;height:16px;border-radius:50%;border:1px solid #d9d9d9;color:#999;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:help;flex-shrink:0}
+.form-row .info-icon:hover{background:#5b8def;color:#fff}
+.red-tag{font-size:10px;padding:2px 7px;border-radius:3px;background:#fff0f0;color:#e04040;border:1px solid #ffd4d4}
+.warn-banner{background:#fffbe6;border:1px solid #ffe58f;border-radius:4px;padding:9px 14px;margin-bottom:14px;font-size:12px;color:#ad6800;display:flex;align-items:flex-start;gap:6px;line-height:1.7}
+.warn-banner .warn-icon{color:#faad14;font-size:16px;flex-shrink:0;line-height:1.5}
+
+.filter-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;font-size:13px;flex-wrap:wrap}
+.filter-row select{padding:5px 26px 5px 10px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;color:#333;background:#fff;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%23999' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+
+.data-table{width:100%;border-collapse:collapse;font-size:12px}
+.data-table th{text-align:left;padding:7px 10px;background:#fafafa;color:#666;font-weight:500;font-size:12px;border-bottom:1px solid #f0f0f0;white-space:nowrap}
+.data-table td{padding:8px 10px;border-bottom:1px solid #f5f5f5;color:#333}
+.data-table tr:last-child td{border-bottom:none}
+.data-table .positive{color:#52c41a}
+.data-table .negative{color:#e04040}
+
+.bottom-panel{background:#fff;border-radius:8px;padding:14px 18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.bottom-panel h3{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #f0f0f0}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <svg viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="6" fill="#5b8def"/><text x="13" y="18" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">企</text></svg>
+    企业管理中台
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-item expanded" style="pointer-events:none">
+      <div class="nav-icon"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M1 3h14v10H1z" stroke="currentColor" stroke-width="1.3"/><path d="M1 6h14" stroke="currentColor" stroke-width="1"/></svg></div>财务管理
+      <span class="arrow">▶</span>
+    </div>
+    <a class="nav-item sub" href="profit-dashboard.html">事业部利润看板</a>
+    <div class="nav-item sub active" style="display:block">事业部费用录入</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <span class="breadcrumb" id="topbar-bc">事业部费用录入</span>
+    <div class="topbar-right" style="display:none"></div>
+  </div>
+  <div class="content">
+    <div class="page-header">
+      <div class="bc">财务管理 / <span>事业部费用录入</span></div>
+      <div class="title-row">
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <h2>事业部费用录入</h2>
+          <span class="subtitle">事业部月度费用数据录入</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <span style="color:#666;font-size:13px">事业部费用录入</span>
+      <label style="color:#666;font-size:13px">事业部</label>
+      <select><option>事业三部</option></select>
+      <label style="color:#666;font-size:13px">年份</label>
+      <select><option>2020年</option><option>2021年</option><option>2022年</option><option>2023年</option><option>2024年</option><option>2025年</option><option selected>2026年</option><option>2027年</option><option>2028年</option><option>2029年</option><option>2030年</option></select>
+      <label style="color:#666;font-size:13px">月份</label>
+      <select><option>1月</option><option>2月</option><option>3月</option><option>4月</option><option>5月</option><option selected>6月</option><option>7月</option><option>8月</option><option>9月</option><option>10月</option><option>11月</option><option>12月</option></select>
+      <button class="btn-reset">📋 复制上月数据</button>
+      <button class="btn-primary" onclick="saveExpenseLog()">💾 保存</button>
+    </div>
+
+    <div class="warn-banner">
+      <span class="warn-icon">⚠</span>
+      <span>数据录入规则：<br>1. 人力成本由人事部录入，其他费用由财务部录入；<br>2. 逾期利息为累计值，每月填入累计值；<br>3. 公司补贴由董事长/董事长助理录入；<br>4. 每月数据请在次月5日前完成录入。</span>
+    </div>
+
+    <div class="form-card">
+      <div class="form-row">
+        <div class="form-label"><span class="required">*</span>人力成本</div>
+        <input type="text" placeholder="请输入金额（万元）" value="38.40">
+        <input type="text" class="form-remark" placeholder="备注（选填）">
+        <span class="info-icon" title="由人事部录入">?</span>
+      </div>
+      <div class="form-row">
+        <div class="form-label"><span class="required">*</span>项目费用</div>
+        <input type="text" placeholder="请输入金额（万元）" value="22.18">
+        <input type="text" class="form-remark" placeholder="备注（选填）">
+        <span class="info-icon" title="由财务部录入">?</span>
+      </div>
+      <div class="form-row">
+        <div class="form-label"><span class="required">*</span>公摊费用</div>
+        <input type="text" placeholder="请输入金额（万元）" value="15.66">
+        <input type="text" class="form-remark" placeholder="备注（选填）">
+        <span class="info-icon" title="水电物业/房租分摊">?</span>
+      </div>
+      <div class="form-row">
+        <div class="form-label"><span class="required">*</span>逾期利息</div>
+        <span class="red-tag">累计</span>
+        <input type="text" placeholder="请输入累计值（万元）" value="12.30">
+        <input type="text" class="form-remark" placeholder="备注（选填）">
+        <span class="info-icon" title="逾期利息为累计值">?</span>
+      </div>
+      <div class="form-row">
+        <div class="form-label"><span class="required">*</span>公司补贴</div>
+        <input type="text" placeholder="请输入金额（万元）" value="5.00">
+        <input type="text" class="form-remark" placeholder="备注（选填）">
+        <span class="info-icon" title="董事长/董事长助理录入">?</span>
+      </div>
+      <div class="form-row" style="background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:10px 14px">
+        <div class="form-label"><span class="required">*</span>本月目标毛利</div>
+        <input type="text" id="monthly-target" placeholder="请输入本月目标毛利（万元）" value="150.00">
+        <span class="info-icon" title="业务人员填写。用于计算目标完成进度">?</span>
+      </div>
+    </div>
+
+    <div class="bottom-panel">
+      <h3>历史录入查询</h3>
+      <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center">
+        <select style="padding:5px 10px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px"><option>事业三部</option></select>
+        <select style="padding:5px 10px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px"><option>2020年</option><option>2021年</option><option>2022年</option><option>2023年</option><option>2024年</option><option>2025年</option><option selected>2026年</option><option>2027年</option><option>2028年</option><option>2029年</option><option>2030年</option></select>
+        <button class="btn-primary" style="font-size:12px">查询</button>
+      </div>
+      <table class="data-table" id="history-table">
+        <thead>
+          <tr><th>部门</th><th>月份</th><th>费用类型</th><th>金额（万）</th><th>备注</th><th>操作人</th><th>操作时间</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>财务部</td><td>2026-05</td><td>项目费用</td><td style="color:#e04040">-20.50</td><td>—</td><td>张振伟</td><td>2026-06-03 14:32:10</td></tr>
+          <tr><td>财务部</td><td>2026-05</td><td>公摊费用</td><td style="color:#e04040">-15.60</td><td>—</td><td>张振伟</td><td>2026-06-03 14:32:10</td></tr>
+          <tr><td>财务部</td><td>2026-05</td><td>逾期利息</td><td style="color:#e04040">-11.80</td><td>累计调整</td><td>张振伟</td><td>2026-06-03 14:32:10</td></tr>
+          <tr><td>人事部</td><td>2026-05</td><td>人力成本</td><td style="color:#e04040">-35.20</td><td>—</td><td>李文华</td><td>2026-06-04 09:15:33</td></tr>
+          <tr><td>财务部</td><td>2026-05</td><td>公司补贴</td><td style="color:#52c41a">+5.00</td><td>—</td><td>张振伟</td><td>2026-06-04 10:20:08</td></tr>
+          <tr><td>财务部</td><td>2026-04</td><td>项目费用</td><td style="color:#e04040">-19.20</td><td>—</td><td>张振伟</td><td>2026-05-02 16:08:45</td></tr>
+          <tr><td>财务部</td><td>2026-04</td><td>公摊费用</td><td style="color:#e04040">-15.60</td><td>—</td><td>张振伟</td><td>2026-05-02 16:08:45</td></tr>
+          <tr><td>财务部</td><td>2026-04</td><td>逾期利息</td><td style="color:#e04040">-11.30</td><td>—</td><td>张振伟</td><td>2026-05-02 16:08:45</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="toast" style="display:none;position:fixed;top:60px;right:30px;background:#52c41a;color:#fff;padding:10px 20px;border-radius:6px;font-size:13px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.15)"></div>
+
+<script>
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  setTimeout(function(){t.style.display='none'},2500);
+}
+
+function saveExpenseLog(){
+  var now=new Date();
+  var ts=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '
+    +String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  var tbody=document.getElementById('history-table').querySelector('tbody');
+  var types=[{dept:'财务部',type:'项目费用',amt:'-22.18',note:'—'},
+             {dept:'财务部',type:'公摊费用',amt:'-15.66',note:'—'},
+             {dept:'财务部',type:'逾期利息',amt:'-12.30',note:'累计调整'},
+             {dept:'人事部',type:'人力成本',amt:'-38.40',note:'—'},
+             {dept:'财务部',type:'公司补贴',amt:'+5.00',note:'—'}];
+  types.forEach(function(t){
+    var row=tbody.insertRow(0);
+    row.innerHTML='<td>'+t.dept+'</td><td>2026-06</td><td>'+t.type+'</td><td style="color:'+(t.amt.startsWith('-')?'#e04040':'#52c41a')+'">'+t.amt+'</td><td>'+t.note+'</td><td>张振伟</td><td>'+ts+'</td>';
+  });
+  showToast('已保存 5 条费用记录，操作人：张振伟 · '+ts);
+}
+</script>
+</body>
+</html>
